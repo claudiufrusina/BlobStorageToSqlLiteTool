@@ -5,12 +5,14 @@ namespace BlobToSqlite.Services;
 public class BlobImportService
 {
     private readonly IBlobStorage _blobStorage;
-    private readonly DatabaseService _dbService;
+    private readonly IBlobRepository _blobRepository;
+    private readonly IBlobPathParser _pathParser;
 
-    public BlobImportService(IBlobStorage blobStorage, DatabaseService dbService)
+    public BlobImportService(IBlobStorage blobStorage, IBlobRepository blobRepository, IBlobPathParser pathParser)
     {
         _blobStorage = blobStorage;
-        _dbService = dbService;
+        _blobRepository = blobRepository;
+        _pathParser = pathParser;
     }
 
     public async Task<int> RunImportAsync(string containerName, DateTime? specificDate, DateTime? minDate)
@@ -23,22 +25,9 @@ public class BlobImportService
             // Filter for JSON files
             if (blob.Name.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
-                // Parse Path: partner/eventType/date/filename
-                var parts = blob.Name.Split('/');
-                if (parts.Length < 4)
+                if (!_pathParser.TryParse(blob.Name, out string partnerName, out string eventType, out DateTime eventDateTime, out string fileName))
                 {
                     // Console.WriteLine($"Skipped {blob.Name} (Invalid path structure)."); // Reduce noise
-                    continue;
-                }
-
-                string partnerName = parts[0];
-                string eventType = parts[1];
-                string dateString = parts[2];
-                string fileName = parts[parts.Length - 1];
-
-                if (!DateTime.TryParse(dateString, out DateTime eventDateTime))
-                {
-                    Console.WriteLine($"Warning: Could not parse date '{dateString}' for {blob.Name}. Skipping.");
                     continue;
                 }
 
@@ -64,8 +53,8 @@ public class BlobImportService
                 
                 if (!string.IsNullOrWhiteSpace(content))
                 {
-                    int partnerId = await _dbService.GetOrCreatePartnerIdAsync(partnerName);
-                    await _dbService.InsertBlobDataAsync(partnerId, eventType, eventDateTime, fileName, content);
+                    int partnerId = await _blobRepository.GetOrCreatePartnerIdAsync(partnerName);
+                    await _blobRepository.InsertBlobDataAsync(partnerId, eventType, eventDateTime, fileName, content);
                     Console.WriteLine("Done.");
                     count++;
                 }

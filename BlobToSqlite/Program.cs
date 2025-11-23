@@ -1,6 +1,9 @@
-﻿using BlobToSqlite.Services;
-
+﻿using BlobToSqlite.Configuration;
+using BlobToSqlite.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace BlobToSqlite;
 
@@ -10,21 +13,35 @@ class Program
     {
         Console.WriteLine("Starting Blob to SQLite Downloader...");
 
-        var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+        var builder = Host.CreateApplicationBuilder(args);
 
-        IConfiguration configuration = builder.Build();
+        // Configuration
+        builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                             .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 
-        string blobConnectionString = configuration["AzureStorage:ConnectionString"];
-        string containerName = configuration["AzureStorage:ContainerName"];
-        string dbConnectionString = configuration["Database:ConnectionString"];
+        builder.Services.Configure<AzureStorageSettings>(builder.Configuration.GetSection("AzureStorage"));
+        builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("Database"));
 
-        if (string.IsNullOrEmpty(blobConnectionString) || string.IsNullOrEmpty(containerName))
+        // Services
+        builder.Services.AddSingleton<IBlobStorage, AzureBlobStorage>();
+        builder.Services.AddSingleton<IBlobPathParser, StandardBlobPathParser>();
+        builder.Services.AddSingleton<IDatabaseInitializer, DatabaseInitializer>();
+        builder.Services.AddSingleton<IBlobRepository, BlobRepository>();
+        builder.Services.AddSingleton<BlobImportService>();
+
+        using IHost host = builder.Build();
+
+        // Initialize DB
+        Console.WriteLine("Initializing Database...");
+        var dbInitializer = host.Services.GetRequiredService<IDatabaseInitializer>();
+        await dbInitializer.InitializeAsync();
+
+        // Resolve Settings for manual check (optional, but good for user feedback)
+        var azureSettings = host.Services.GetRequiredService<IOptions<AzureStorageSettings>>().Value;
+        if (string.IsNullOrEmpty(azureSettings.ConnectionString) || string.IsNullOrEmpty(azureSettings.ContainerName))
         {
-            Console.WriteLine("Error: Missing configuration. Please check appsettings.json.");
-            return;
+             Console.WriteLine("Error: Missing Azure configuration. Please check appsettings.json.");
+             return;
         }
 
         // Date Filtering Logic
@@ -42,25 +59,16 @@ class Program
             Console.WriteLine($"Filter: Processing blobs from the last 30 days (since {minDate:yyyy-MM-dd})");
         }
 
-        // Initialize Services
-        var blobStorage = new AzureBlobStorage(blobConnectionString);
-        var dbService = new DatabaseService(dbConnectionString);
-        var importService = new BlobImportService(blobStorage, dbService);
-
-        // Initialize DB
-        Console.WriteLine("Initializing Database...");
-        await dbService.InitializeAsync();
-
         // Run Import
+        var importService = host.Services.GetRequiredService<BlobImportService>();
         int count = 0;
         try 
         {
-            count = await importService.RunImportAsync(containerName, specificDate, minDate);
+            count = await importService.RunImportAsync(azureSettings.ContainerName, specificDate, minDate);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
-            Console.WriteLine("Please ensure AZURE_STORAGE_CONNECTION_STRING and AZURE_CONTAINER_NAME environment variables are set, or update the code.");
         }
 
         Console.WriteLine($"Finished. Processed {count} files.");

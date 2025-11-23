@@ -1,6 +1,8 @@
+using BlobToSqlite.Configuration;
 using BlobToSqlite.Services;
 using Dapper;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Options;
 
 namespace BlobToSqlite.Tests;
 
@@ -34,11 +36,17 @@ public class SimulationTests
 
         // Setup Services
         var blobStorage = new LocalFileBlobStorage(inputDir);
-        var dbService = new DatabaseService(connectionString);
-        var importService = new BlobImportService(blobStorage, dbService);
+        
+        // Configuration for Repository
+        var dbSettings = Options.Create(new DatabaseSettings { ConnectionString = connectionString });
+        var blobRepository = new BlobRepository(dbSettings);
+        var dbInitializer = new DatabaseInitializer(dbSettings);
+        var pathParser = new StandardBlobPathParser();
+
+        var importService = new BlobImportService(blobStorage, blobRepository, pathParser);
 
         // Act
-        await dbService.InitializeAsync();
+        await dbInitializer.InitializeAsync();
         int count = await importService.RunImportAsync("dummy-container", null, null);
 
         // Assert

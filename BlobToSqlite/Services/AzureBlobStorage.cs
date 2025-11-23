@@ -1,5 +1,7 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using BlobToSqlite.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace BlobToSqlite.Services;
 
@@ -7,9 +9,9 @@ public class AzureBlobStorage : IBlobStorage
 {
     private readonly BlobServiceClient _blobServiceClient;
 
-    public AzureBlobStorage(string connectionString)
+    public AzureBlobStorage(IOptions<AzureStorageSettings> settings)
     {
-        _blobServiceClient = new BlobServiceClient(connectionString);
+        _blobServiceClient = new BlobServiceClient(settings.Value.ConnectionString);
     }
 
     public async IAsyncEnumerable<BlobItem> ListBlobsRecursiveAsync(string containerName)

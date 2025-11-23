@@ -1,51 +1,92 @@
-# Blob to SQLite Downloader - Walkthrough
+# BlobToSqlite
 
-## Overview
-This console application connects to Azure Blob Storage, scans a container for JSON files, and imports their content into a local SQLite database (`blobs.db`).
+![.NET 8.0](https://img.shields.io/badge/.NET-8.0-purple)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
-## Prerequisites
-- .NET 8 SDK
-- Azure Storage Account (Connection String)
-- A container with JSON files
+**BlobToSqlite** is a robust, high-performance tool designed to download data from Azure Blob Storage and import it into a local SQLite database. It is built with modern .NET 8 standards, adhering to SOLID principles and utilizing Dependency Injection for maximum maintainability and testability.
 
-## How to Run
+## 🚀 Features
+
+- **Azure Blob Integration**: Seamlessly connects to Azure Blob Storage to fetch data files.
+- **SQLite Export**: Efficiently parses and stores data into a local SQLite database.
+- **Smart Filtering**:
+  - **Default Mode**: Automatically processes data from the last 30 days.
+  - **Specific Date Mode**: targeted processing for a specific date.
+- **Modern Architecture**:
+  - Built on **.NET 8**.
+  - Uses **Microsoft.Extensions.Hosting** for lifecycle management.
+  - Implements **Dependency Injection (DI)**.
+  - Uses the **Options Pattern** for type-safe configuration.
+
+## 📋 Prerequisites
+
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) installed on your machine.
+- An active **Azure Storage Account** with a container holding your data.
+
+## ⚙️ Configuration
+
+The application uses `appsettings.json` for configuration. You can also use `appsettings.local.json` for local overrides (this file is git-ignored by default).
 
 ### 1. Configure Settings
-Open `appsettings.json` (or create `appsettings.local.json` to override) and set your Azure details:
+Ensure your `appsettings.json` (or `appsettings.local.json`) looks like this:
 
 ```json
 {
   "AzureStorage": {
-    "ConnectionString": "your_connection_string_here",
-    "ContainerName": "your_container_name"
+    "ConnectionString": "YOUR_AZURE_STORAGE_CONNECTION_STRING",
+    "ContainerName": "your-container-name"
+  },
+  "Database": {
+    "ConnectionString": "Data Source=blobdata.db"
   }
 }
 ```
 
-### 2. Run the Application
+> [!IMPORTANT]
+> Never commit your actual secrets or connection strings to version control. Use `appsettings.local.json` or User Secrets for sensitive data.
 
-**Default (Last 30 Days):**
+## 🏃 Usage
+
+You can run the tool directly from the command line.
+
+### Default Mode (Last 30 Days)
+Running without arguments will process blobs modified in the last 30 days.
+
 ```bash
-dotnet run
+dotnet run --project BlobToSqlite
 ```
 
-**Specific Date:**
+### Specific Date Mode
+To process blobs for a specific date, pass the date as an argument (format: `YYYY-MM-DD`).
+
 ```bash
-dotnet run -- 2025-11-23
+dotnet run --project BlobToSqlite 2023-10-27
 ```
 
-### 3. Verify Results
-The application will create a `blobs.db` file in the same directory. You can inspect it using any SQLite viewer.
+## 🏗️ Architecture
 
-## Code Structure
-- **Services/IBlobStorage.cs**: Interface for blob operations.
-- **Services/AzureBlobStorage.cs**: Implementation using `Azure.Storage.Blobs`.
-- **Services/DatabaseService.cs**: Handles SQLite operations using `Dapper`.
-    - Creates `Partners` and `BlobData` tables.
-    - Normalizes partner names.
-- **Program.cs**: Main entry point.
-    - Parses blob paths: `partner/eventType/date/filename`.
+This project follows **Clean Architecture** and **SOLID** principles:
 
-## Database Schema
-- **Partners**: `Id`, `Name`
-- **BlobData**: `Id`, `PartnerId`, `EventType`, `EventDateTime`, `FileName`, `JsonContent`, `ImportedAt`
+- **Core**:
+  - `IBlobStorage`: Abstraction for blob storage operations.
+  - `IBlobRepository`: Abstraction for database operations.
+  - `IBlobPathParser`: Logic for parsing blob paths/filenames.
+- **Infrastructure**:
+  - `AzureBlobStorage`: Concrete implementation using Azure SDK.
+  - `BlobRepository`: Concrete implementation using Dapper and SQLite.
+- **Application**:
+  - `BlobImportService`: Orchestrates the flow between storage and database.
+
+## 🛠️ Development
+
+To build the project:
+
+```bash
+dotnet build
+```
+
+To run tests:
+
+```bash
+dotnet test
+```

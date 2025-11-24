@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Dev\\Antigravity\\Projects\\BlobToSqlite.Tests\\BlobToSqlite.Tests.csproj": {}
+    "D:\\Dev\\Antigravity\\BlobStorageToSqlLiteTool\\BlobToSqlite.Tests\\BlobToSqlite.Tests.csproj": {}
   },
   "projects": {
-    "D:\\Dev\\Antigravity\\Projects\\BlobToSqlite.Tests\\BlobToSqlite.Tests.csproj": {
+    "D:\\Dev\\Antigravity\\BlobStorageToSqlLiteTool\\BlobToSqlite.Tests\\BlobToSqlite.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dev\\Antigravity\\Projects\\BlobToSqlite.Tests\\BlobToSqlite.Tests.csproj",
+        "projectUniqueName": "D:\\Dev\\Antigravity\\BlobStorageToSqlLiteTool\\BlobToSqlite.Tests\\BlobToSqlite.Tests.csproj",
         "projectName": "BlobToSqlite.Tests",
-        "projectPath": "D:\\Dev\\Antigravity\\Projects\\BlobToSqlite.Tests\\BlobToSqlite.Tests.csproj",
+        "projectPath": "D:\\Dev\\Antigravity\\BlobStorageToSqlLiteTool\\BlobToSqlite.Tests\\BlobToSqlite.Tests.csproj",
         "packagesPath": "C:\\Users\\claud\\.nuget\\packages\\",
-        "outputPath": "D:\\Dev\\Antigravity\\Projects\\BlobToSqlite.Tests\\obj\\",
+        "outputPath": "D:\\Dev\\Antigravity\\BlobStorageToSqlLiteTool\\BlobToSqlite.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\claud\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -26,8 +26,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Dev\\Antigravity\\Projects\\BlobToSqlite\\BlobToSqlite.csproj": {
-                "projectPath": "D:\\Dev\\Antigravity\\Projects\\BlobToSqlite\\BlobToSqlite.csproj"
+              "D:\\Dev\\Antigravity\\BlobStorageToSqlLiteTool\\BlobToSqlite\\BlobToSqlite.csproj": {
+                "projectPath": "D:\\Dev\\Antigravity\\BlobStorageToSqlLiteTool\\BlobToSqlite\\BlobToSqlite.csproj"
               }
             }
           }
@@ -100,14 +100,14 @@
         }
       }
     },
-    "D:\\Dev\\Antigravity\\Projects\\BlobToSqlite\\BlobToSqlite.csproj": {
+    "D:\\Dev\\Antigravity\\BlobStorageToSqlLiteTool\\BlobToSqlite\\BlobToSqlite.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dev\\Antigravity\\Projects\\BlobToSqlite\\BlobToSqlite.csproj",
+        "projectUniqueName": "D:\\Dev\\Antigravity\\BlobStorageToSqlLiteTool\\BlobToSqlite\\BlobToSqlite.csproj",
         "projectName": "BlobToSqlite",
-        "projectPath": "D:\\Dev\\Antigravity\\Projects\\BlobToSqlite\\BlobToSqlite.csproj",
+        "projectPath": "D:\\Dev\\Antigravity\\BlobStorageToSqlLiteTool\\BlobToSqlite\\BlobToSqlite.csproj",
         "packagesPath": "C:\\Users\\claud\\.nuget\\packages\\",
-        "outputPath": "D:\\Dev\\Antigravity\\Projects\\BlobToSqlite\\obj\\",
+        "outputPath": "D:\\Dev\\Antigravity\\BlobStorageToSqlLiteTool\\BlobToSqlite\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\claud\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -146,6 +146,10 @@
             "Dapper": {
               "target": "Package",
               "version": "[2.1.66, )"
+            },
+            "Microsoft.Data.SqlClient": {
+              "target": "Package",
+              "version": "[6.1.3, )"
             },
             "Microsoft.Data.Sqlite": {
               "target": "Package",

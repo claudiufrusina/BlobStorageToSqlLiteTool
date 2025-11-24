@@ -37,8 +37,19 @@ Ensure your `appsettings.json` (or `appsettings.local.json`) looks like this:
     "ContainerName": "your-container-name"
   },
   "Database": {
-    "ConnectionString": "Data Source=blobdata.db"
+    "ConnectionString": "Data Source=blobdata.db",
+    "Provider": "Sqlite"
   }
+}
+```
+
+### 2. SQL Server Support
+To use SQL Server, change the `Provider` to `SqlServer` and update the `ConnectionString`.
+
+```json
+"Database": {
+  "ConnectionString": "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword;TrustServerCertificate=True;",
+  "Provider": "SqlServer"
 }
 ```
 

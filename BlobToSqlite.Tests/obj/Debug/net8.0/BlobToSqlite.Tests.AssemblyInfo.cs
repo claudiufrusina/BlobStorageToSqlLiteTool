@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BlobToSqlite.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a76defde2fc7a70c27d7fd8f6973a065d97be5ad")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4435f98cc71721724f83a670bed5abfb90fa85fc")]
 [assembly: System.Reflection.AssemblyProductAttribute("BlobToSqlite.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BlobToSqlite.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

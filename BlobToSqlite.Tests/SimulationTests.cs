@@ -38,9 +38,10 @@ public class SimulationTests
         var blobStorage = new LocalFileBlobStorage(inputDir);
         
         // Configuration for Repository
-        var dbSettings = Options.Create(new DatabaseSettings { ConnectionString = connectionString });
-        var blobRepository = new BlobRepository(dbSettings);
-        var dbInitializer = new DatabaseInitializer(dbSettings);
+        var dbSettings = Options.Create(new DatabaseSettings { ConnectionString = connectionString, Provider = "Sqlite" });
+        var connectionFactory = new DbConnectionFactory(dbSettings);
+        var blobRepository = new BlobRepository(connectionFactory);
+        var dbInitializer = new DatabaseInitializer(connectionFactory);
         var pathParser = new StandardBlobPathParser();
 
         var importService = new BlobImportService(blobStorage, blobRepository, pathParser);

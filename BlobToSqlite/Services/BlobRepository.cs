@@ -13,16 +13,16 @@ public interface IBlobRepository
 
 public class BlobRepository : IBlobRepository
 {
-    private readonly string _connectionString;
+    private readonly IDbConnectionFactory _connectionFactory;
 
-    public BlobRepository(IOptions<DatabaseSettings> settings)
+    public BlobRepository(IDbConnectionFactory connectionFactory)
     {
-        _connectionString = settings.Value.ConnectionString;
+        _connectionFactory = connectionFactory;
     }
 
     public async Task<int> GetOrCreatePartnerIdAsync(string partnerName)
     {
-        using var connection = new SqliteConnection(_connectionString);
+        using var connection = _connectionFactory.CreateConnection();
         
         var sqlSelect = "SELECT Id FROM Partners WHERE Name = @Name;";
         var id = await connection.QuerySingleOrDefaultAsync<int?>(sqlSelect, new { Name = partnerName });
@@ -32,13 +32,16 @@ public class BlobRepository : IBlobRepository
             return id.Value;
         }
 
-        var sqlInsert = "INSERT INTO Partners (Name) VALUES (@Name); SELECT last_insert_rowid();";
+        var isSqlite = _connectionFactory.GetProviderName().Equals("Sqlite", StringComparison.OrdinalIgnoreCase);
+        var identityQuery = isSqlite ? "last_insert_rowid()" : "CAST(SCOPE_IDENTITY() as int)";
+
+        var sqlInsert = $"INSERT INTO Partners (Name) VALUES (@Name); SELECT {identityQuery};";
         return await connection.QuerySingleAsync<int>(sqlInsert, new { Name = partnerName });
     }
 
     public async Task InsertBlobDataAsync(int partnerId, string eventType, DateTime? eventDateTime, string fileName, string jsonContent)
     {
-        using var connection = new SqliteConnection(_connectionString);
+        using var connection = _connectionFactory.CreateConnection();
         var sql = @"
             INSERT INTO BlobData (PartnerId, EventType, EventDateTime, FileName, JsonContent, ImportedAt)
             VALUES (@PartnerId, @EventType, @EventDateTime, @FileName, @JsonContent, @ImportedAt);";

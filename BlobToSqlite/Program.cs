@@ -23,6 +23,7 @@ class Program
         builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("Database"));
 
         // Services
+        builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
         builder.Services.AddSingleton<IBlobStorage, AzureBlobStorage>();
         builder.Services.AddSingleton<IBlobPathParser, StandardBlobPathParser>();
         builder.Services.AddSingleton<IDatabaseInitializer, DatabaseInitializer>();

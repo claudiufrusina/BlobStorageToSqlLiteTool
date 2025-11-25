@@ -1,0 +1,6 @@
+bin/
+obj/
+appsettings.local.json
+.git
+.vs
+.env
